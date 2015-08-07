@@ -4,18 +4,18 @@ DISTRO_VAL = $(shell lsb_release -r | egrep -o '[0-9]{2}.[0-9]{2}')
 DISTRO =  $(strip $(DISTRO_VAL))
 $(PREP):
 	#First time run requires update to install pkgs
-	sudo apt-get update
+#	sudo apt-get update
 	#Install pbuilder and copy the conf file
-	if [ -d "/var/cache/pbuilder" ]; then \
-		@echo "Folder found"; \
-		cp utils/.pbuilderrc ~/; \
-	else \
-		@echo "Folder not found"; \
-		sudo apt-get install pbuilder debootstrap devscripts; \
-		sudo cp utils/.pbuilderrc ~/; \
-		sudo pbuilder create; \
-	fi; \
-	sudo pbuilder update
+#	if [ -d "/var/cache/pbuilder" ]; then \
+#		@echo "Folder found"; \
+#		cp utils/.pbuilderrc ~/; \
+#	else \
+#		@echo "Folder not found"; \
+#		sudo apt-get install pbuilder debootstrap devscripts; \
+#		sudo cp utils/.pbuilderrc ~/; \
+#		sudo pbuilder create; \
+#	fi; \
+#	sudo pbuilder update
 	mkdir -p $(GIT_ROOT)/../build
 
 kazoo:$(PREP)
@@ -33,7 +33,7 @@ docker-py:$(PREP)
 	(cd $(GIT_ROOT)/../build; cp docker-py-0.6.0.tar.gz docker-py_0.6.0.orig.tar.gz)
 	cp -Rf docker-py/debian $(GIT_ROOT)/../build/docker-py-0.6.0
 	#Build the docker-py from the BUILD dir	
-	(cd $(GIT_ROOT)/../build/docker-py-0.6.0; sudo pdebuild --use-pdebuild-internal --debbuildopts -tc)
+	(cd $(GIT_ROOT)/../build/docker-py-0.6.0; sbuild -n -d trusty --arch-all)
 
 nova-docker-juno: $(PREP)
 	(cd $(GIT_ROOT)/../build; if [ -d nova-docker ] ; then cd nova-docker && echo "git clean -f && git pull"; else git clone -b stable/juno git@github.com:Juniper/nova-docker.git; fi)
@@ -106,7 +106,7 @@ nodejs:$(PREP)
 	(cd $(GIT_ROOT)/../build/nodejs;bash $(GIT_ROOT)/upstream/debian/utils/get-sources.sh)
 	#Build the nodejs from the BUILD dir
 	#(cd $(GIT_ROOT)/../build/nodejs; sudo pdebuild --use-pdebuild-internal --debbuildopts -tc)
-	(cd $(GIT_ROOT)/../build/nodejs; sbuild -A)
+	(cd $(GIT_ROOT)/../build/nodejs; sbuild -n -d trusty --arch-all)
 
 librdkafka:$(PREP)
 	#copy the 0.8.5 orig.tar.gz file to build
